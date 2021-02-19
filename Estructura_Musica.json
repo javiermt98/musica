@@ -1,0 +1,37 @@
+grupo{
+  "cod_grup":int,
+  "nombre_g":string,
+  "fecha_g":string,
+  "pais",string,
+  "clubs":[{
+    "cod_club":int,
+    "nombre_club":string,
+    "sede":string,
+    "num":int,
+  }]
+  artistas:[{
+    "dni":string,
+    "nombre_a":string,
+    "funcion":string
+  }],
+  disco{
+    "cod_disco":int,
+    "nombre_d":string,
+    "fecha_d":string,
+    "cod_company":int,
+    canciones:[{
+      "cod":int,
+      "titulo":string,
+      "duracion":double
+    }]
+  }
+  
+}
+company{
+  "cod_company":int,
+  "nombre_comp":string,
+  "dir":string,
+  "fax":string,
+  "tfno":string,
+
+}
