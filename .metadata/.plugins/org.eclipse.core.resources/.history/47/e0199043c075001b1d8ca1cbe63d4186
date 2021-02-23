@@ -1,0 +1,9 @@
+package ejercicios;
+
+public class Ejercicio04_MongoDB {
+	
+	public static void main(String[]args) {
+		
+	}
+
+}

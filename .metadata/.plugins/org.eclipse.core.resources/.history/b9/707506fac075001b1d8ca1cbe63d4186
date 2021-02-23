@@ -1,0 +1,12 @@
+package ejercicios;
+
+public class Ejercicio04_MongoDB {
+	
+	public static void main(String[]args) {
+		
+		//************************************************************************************************************
+		//APARTADO A - CODIGO Y NOMBRE DE LOS GRUPOS DE UN PAIS INTRODUCIDO POR EL USUARIO
+		//************************************************************************************************************
+	}
+
+}
