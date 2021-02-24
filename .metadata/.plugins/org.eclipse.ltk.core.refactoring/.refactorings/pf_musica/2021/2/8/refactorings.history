@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;collection&apos; in &apos;ejercicios.Ejercicio04_MongoDB.main(...)&apos; to &apos;collectiongrupo&apos;&#x0D;&#x0A;- Original project: &apos;pf_musica&apos;&#x0D;&#x0A;- Original element: &apos;ejercicios.Ejercicio04_MongoDB.main(String[]).collection&apos;&#x0D;&#x0A;- Renamed element: &apos;collection&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;collection&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;ejercicios{Ejercicio04_MongoDB.java[Ejercicio04_MongoDB~main~\[QString;@collection!722!792!748!757!QMongoCollection\&lt;QDocument;&gt;;!0!false" name="collectiongrupo" references="true" stamp="1614163185093" version="1.0"/>
+</session>
