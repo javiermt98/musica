@@ -1,6 +1,5 @@
 package ejercicios;
 
-import static com.mongodb.client.model.Filters.regex;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,7 @@ import com.mongodb.client.MongoDatabase;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.*;
+import static com.mongodb.client.model.DeleteOptions.*;
 
 
 
@@ -28,6 +28,8 @@ public class Ejercicio05_MongoDB {
 		//************************************************************************************************
 		//APARTADO A - INSERTAR A UN GRUPO EXISTENTE, UN DISCO CON UNA CANCION INTRODUCIDOS POR EL USUARIO
 		//************************************************************************************************
+		
+		
 		
 		System.out.println("\n******************* Apartado A *******************");
 		
@@ -100,11 +102,44 @@ public class Ejercicio05_MongoDB {
 		
 		
 		
+		
 		//************************************************************************************************
 		//APARTADO B - ACTUALIZAR FUNCION DE ARTISTA POR DOLÇAINER POR CODIGO DE GRUPO Y DNI ARTISTA
 		//************************************************************************************************
+		Scanner wg = new Scanner(System.in);
+		Scanner zw = new Scanner(System.in);
+
+		System.out.println("\n******************* Apartado B *******************");
 		
-	
+		System.out.print("Codigo de grupo: ");
+		int codgru = wg.nextInt();
+		System.out.print("DNI del artista: ");
+		String dni = zw.nextLine();
+		
+		grupos = new ArrayList<Document>();
+		collectiongrupo.find(eq("cod_grupo",codgru)).into(grupos);
+
+		if(!grupos.isEmpty()) {
+			for(Document grup: grupos) {
+				List<Document> artistas = (List<Document>) grup.get("artistas");
+				
+				for(Document artista: artistas) {
+					if(artista.getString("dni").equalsIgnoreCase(dni)) {
+						
+						Document  artistaactualizado = new Document()
+								.append("funcion", "dolcainer")
+								.append("dni", artista.get("nombre"))
+								.append("nombre_artista", artista.get("nombre_artista"));
+						
+						collectiongrupo.updateOne(and(eq("cod_grupo", codgru),eq("artsitas.dni", dni)), set("funcion", "dolcainer"));
+						
+					}
+				}
+			}
+		}
+		else {
+			System.out.println("No existe ese codigo de grupo");
+		}
 	
 	
 	}

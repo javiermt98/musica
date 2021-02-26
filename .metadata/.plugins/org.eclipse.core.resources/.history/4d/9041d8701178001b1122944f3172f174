@@ -1,0 +1,112 @@
+package ejercicios;
+
+import java.util.List;
+
+import org.bson.Document;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import pojos.*;
+
+import hibernate.UtilesHibernate;
+
+public class Ejercicio06_Integracion {
+	public static void main(String[]args) {
+		MongoClient mongoClient = MongoClients.create("mongodb://localhost/27017");
+		MongoDatabase database = mongoClient.getDatabase("musica");
+		MongoCollection<Document> collectiongrupo = database.getCollection("grupo");
+		MongoCollection<Document> collectioncompany = database.getCollection("company");
+		
+		SessionFactory factory = UtilesHibernate.getSessionFactory();
+		Session sesion = factory.getCurrentSession();
+		sesion.beginTransaction();
+		
+		List<Document> listagrupos =  (List<Document>) collectiongrupo.find();
+		List<Document> listacompany =  (List<Document>) collectioncompany.find();
+		
+		for(Document grupo: listagrupos) {
+			
+			//Grupo
+			Grupo gp = new Grupo();
+			gp.setCod_grupo(grupo.getInteger("cod_grupo"));
+			gp.setFecha(grupo.getString("fecha_grupo"));
+			gp.setNombre(grupo.getString("nombre_grupo"));
+			gp.setPais(grupo.getString("pais"));
+			sesion.save(gp);
+			
+			//Artistas
+			List<Document> artistas = (List<Document>) grupo.get("artistas");
+			for(Document artista: artistas) {
+				
+				Artista a = new Artista();
+				a.setDni(artista.getString("dni"));
+				a.setNombre(artista.getString("nombre"));
+				sesion.save(a);
+			}
+			
+			//Discos y Canciones y Esta
+			List<Document> discos = (List<Document>) grupo.get("discos");
+			for(Document disco: discos) {
+				Disco d = new Disco();
+				d.setCod_disco(disco.getInteger("cod_disco"));
+				d.setFecha(disco.getString("fecha_disco"));
+				d.setNombre(disco.getString("nombre_disco"));
+				sesion.save(d);
+				List<Document> canciones = (List<Document>) disco.get("canciones");
+				for(Document cancion: canciones) {
+					Cancion c = new Cancion();
+					c.setCod_cancion(cancion.getInteger("cod_cancion"));
+					c.setDuracion(cancion.getDouble("duracion"));
+					c.setTitulo(cancion.getString("titulo_cancion"));
+					sesion.save(c);
+					
+					Esta st = new Esta();
+					st.setCancion_disco(c);
+					st.setCod_disco(d);
+					sesion.save(st);
+					
+				}
+			}
+			
+			//Club
+			List<Document> clubs = (List<Document>) grupo.get("club");
+			for(Document club: clubs) {
+				Club cl = new Club();
+				cl.setCod_club(club.getInteger("cod_club"));
+				cl.setNombre(club.getString("nombre_club"));
+				cl.setNum(club.getInteger("num_disco"));
+				cl.setSede(club.getString("sede"));
+				sesion.save(cl);
+			}
+			
+			//Companyia
+			for(Document comp: listacompany) {
+				Company cmp = new Company();
+				cmp.setCod_company(comp.getInteger("cod_company"));
+				cmp.setDir(comp.getString("dir_company"));
+				cmp.setFax(comp.getString("fax"));
+				cmp.setNombre(comp.getString("nombre_company"));
+				cmp.setTfno(comp.getString("tfno"));
+				sesion.save(cmp);
+			}
+			
+			
+			
+			
+			
+			
+			
+		}
+		
+		
+		sesion.getTransaction().commit();
+		
+		
+	
+	}
+
+}

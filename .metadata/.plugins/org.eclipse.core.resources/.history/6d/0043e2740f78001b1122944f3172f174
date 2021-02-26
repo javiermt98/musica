@@ -1,0 +1,71 @@
+package ejercicios;
+
+import java.util.List;
+
+import org.bson.Document;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import pojos.*;
+
+import hibernate.UtilesHibernate;
+
+public class Ejercicio06_Integracion {
+	public static void main(String[]args) {
+		MongoClient mongoClient = MongoClients.create("mongodb://localhost/27017");
+		MongoDatabase database = mongoClient.getDatabase("musica");
+		MongoCollection<Document> collectiongrupo = database.getCollection("grupo");
+		MongoCollection<Document> collectioncompany = database.getCollection("company");
+		
+		SessionFactory factory = UtilesHibernate.getSessionFactory();
+		Session sesion = factory.getCurrentSession();
+		sesion.beginTransaction();
+		
+		List<Document> listagrupos =  (List<Document>) collectiongrupo.find();
+		
+		for(Document grupo: listagrupos) {
+			
+			//Artistas
+			List<Document> artistas = (List<Document>) grupo.get("artistas");
+			for(Document artista: artistas) {
+				
+				Artista a = new Artista();
+				a.setDni(artista.getString("dni"));
+				a.setNombre(artista.getString("nombre"));
+				sesion.save(a);
+			}
+			
+			//Discos y Canciones
+			List<Document> discos = (List<Document>) grupo.get("discos");
+			for(Document disco: discos) {
+				Disco d = new Disco();
+				d.setCod_disco(disco.getInteger("cod_disco"));
+				d.setFecha(disco.getString("fecha_disco"));
+				d.setNombre(disco.getString("nombre_disco"));
+				sesion.save(d);
+				List<Document> canciones = (List<Document>) disco.get("canciones");
+				for(Document cancion: canciones) {
+					Cancion c = new Cancion();
+					c.setCod_cancion(cancion.getInteger("cod_cancion"));
+					c.setDuracion(cancion.getDouble("duracion"));
+					c.setTitulo(cancion.getString("titulo_cancion"));
+					sesion.save(c);
+				}
+			}
+			
+			
+			
+		}
+		
+		
+		sesion.getTransaction().commit();
+		
+		
+	
+	}
+
+}
