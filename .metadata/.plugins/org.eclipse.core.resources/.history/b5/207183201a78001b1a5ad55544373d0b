@@ -1,0 +1,150 @@
+package ejercicios;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bson.Document;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import pojos.*;
+
+import hibernate.UtilesHibernate;
+
+public class Ejercicio06_Integracion {
+	public static void main(String[]args) {
+		MongoClient mongoClient = MongoClients.create("mongodb://localhost/27017");
+		MongoDatabase database = mongoClient.getDatabase("musica");
+		MongoCollection<Document> collectiongrupo = database.getCollection("grupo");
+		MongoCollection<Document> collectioncompany = database.getCollection("company");
+		
+		SessionFactory factory = UtilesHibernate.getSessionFactory();
+		Session sesion = factory.getCurrentSession();
+		sesion.beginTransaction();
+		
+		List<Document> listagrupos = new ArrayList<Document>();
+		collectiongrupo.find().into(listagrupos);
+		List<Document> listacompany = new ArrayList<Document>();
+		collectioncompany.find().into(listacompany);
+		
+		for(Document grupo: listagrupos) {
+			
+			//Grupo
+			int cod_grup = grupo.getInteger("cod_grupo");
+			Grupo gp = sesion.get(Grupo.class, cod_grup);
+			if(gp==null) {
+				gp = new Grupo();
+				gp.setCod_grupo(grupo.getInteger("cod_grupo"));
+				gp.setFecha(grupo.getString("fecha_grupo"));
+				gp.setNombre(grupo.getString("nombre_grupo"));
+				gp.setPais(grupo.getString("pais"));
+				System.out.println(gp.toString());
+				sesion.save(gp);
+				
+				//Artistas y Pertenece
+				List<Document> artistas = (List<Document>) grupo.get("artistas");
+				for(Document artista: artistas) {
+					String cod_art = artista.getString("dni");
+					Artista a = sesion.get(Artista.class, cod_art);
+					if(a==null) {
+						a = new Artista();
+						a.setDni(artista.getString("dni"));
+						a.setNombre(artista.getString("nombre"));
+						sesion.save(a);
+					}
+					
+					Pertenece pert = new Pertenece();
+					pert.setArtista(a);
+					pert.setGrupo_pertenece(gp);
+					pert.setFuncion(artista.getString("funcion"));
+					sesion.save(pert);
+				}
+				
+				
+				//Discos y Canciones y Esta
+				List<Document> discos = (List<Document>) grupo.get("disco");
+				for(Document disco: discos) {
+					if(disco.get("cod_disco")!=null) {
+						Disco d = new Disco();
+						d.setCod_disco(disco.getInteger("cod_disco"));
+						d.setFecha(disco.getString("fecha_disco"));
+						d.setNombre(disco.getString("nombre_disco"));
+						sesion.save(d);
+						List<Document> canciones = (List<Document>) disco.get("canciones");
+						for(Document cancion: canciones) {
+							//Como la misma cancion esta en diferentes discos, la clave ajena esta repetida y casca
+							int cod_c = cancion.getInteger("cod_cancion");
+							Cancion c = sesion.get(Cancion.class, cod_c);
+							if(c==null) {
+								c = new Cancion();
+								c.setCod_cancion(cancion.getInteger("cod_cancion"));
+								c.setDuracion(cancion.getDouble("duracion"));
+								c.setTitulo(cancion.getString("titulo_cancion"));
+								System.out.println(c.toString());
+								sesion.saveOrUpdate(c);
+							}
+	
+							
+							
+							Esta st = new Esta();
+							st.setCancion_disco(c);
+							st.setCod_disco(d);
+							System.out.println(st.toString());
+							sesion.save(st);
+							
+						
+						}
+					}
+				}
+				
+				//Club
+				List<Document> clubs = (List<Document>) grupo.get("clubs");
+				for(Document club: clubs) {
+					Club cl = new Club();
+					cl.setCod_club(club.getInteger("cod_club"));
+					cl.setNombre(club.getString("nombre_club"));
+					cl.setNum(club.getInteger("num_disco"));
+					cl.setSede(club.getString("sede"));
+					System.out.println(cl.toString());
+					sesion.save(cl);
+				}
+				
+				//Companyia
+				for(Document comp: listacompany) {
+					int cod_comp = comp.getInteger("cod_company");
+					Company cmp = sesion.get(Company.class, cod_comp);
+					if(cmp==null) {
+						 cmp = new Company();
+						cmp.setCod_company(comp.getInteger("cod_company"));
+						cmp.setDir(comp.getString("dir_company"));
+						cmp.setFax(comp.getString("fax"));
+						cmp.setNombre(comp.getString("nombre_company"));
+						cmp.setTfno(comp.getString("tfno"));
+						System.out.println(cmp.toString());
+						sesion.save(cmp);
+					}
+				}
+				
+				
+				
+				
+				
+				
+				
+				
+				}
+			
+		}
+		
+		
+		sesion.getTransaction().commit();
+		
+		
+	
+	}
+
+}
